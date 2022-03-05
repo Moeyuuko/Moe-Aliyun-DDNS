@@ -87,7 +87,7 @@ if __name__ == '__main__':
 	#ipv4 = Moeip.Get_Ip("ipv4"))
 	ipv6 = Moeip.Get_Ip("ipv6")
 	client = Moeip(key.access_key_id, key.access_key_secret)
-	RecordId = Moeip.Get_RecordId(client,'test.moe123.top')
+	RecordId = Moeip.Get_RecordId(client,key.domain)
 	if ipv6 != Moeip.pull_ip(client,RecordId):
 		Moeip.push_ip(client,RecordId,'test','AAAA',ipv6,600)
 	else:
