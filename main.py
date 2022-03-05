@@ -1,7 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import requests
-import key
+#import key
 
 class Moeip:
 	def Requests_Url_Text(url):
