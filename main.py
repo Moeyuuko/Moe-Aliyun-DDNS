@@ -52,34 +52,47 @@ class Moeip:
 		elif Type == "ipv4":
 			return Moeip.Requests_Url_Text('http://ipv4-ip.moeyuuko.com/')
 	
+	def __init__ (self, access_key_id: str,access_key_secret: str):
+		self.client = Sample.create_client(access_key_id, access_key_secret)
+	
 	@staticmethod
-	def push_ip(record_id,rr,type,value,ttl=600) -> None:
-		client = Sample.create_client(key.access_key_id, key.access_key_secret)
+	def push_ip(self,RecordId,rr,type,value,ttl=600) -> None:
 		update_domain_record_request = alidns_20150109_models.UpdateDomainRecordRequest(
-			record_id=record_id,
+			record_id=RecordId,
 			rr=rr,
 			type=type,
 			value=value,
 			ttl=ttl
 		)
-		resp = client.update_domain_record(update_domain_record_request)
-		#print (resp)
+		resp = self.client.update_domain_record(update_domain_record_request)
 		ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))
+	
+	@staticmethod
+	def pull_ip(self,RecordId) -> None:
+		describe_domain_record_info_request = alidns_20150109_models.DescribeDomainRecordInfoRequest(
+			record_id=RecordId
+		)
+		resp = self.client.describe_domain_record_info(describe_domain_record_info_request)
+		return TeaCore.to_map(resp)["body"]["Value"]
 
 	@staticmethod
-	def Get_RecordId(sub_domain) -> None:
-		client = Sample.create_client(key.access_key_id, key.access_key_secret)
+	def Get_RecordId(self,sub_domain) -> None:
 		describe_sub_domain_records_request = alidns_20150109_models.DescribeSubDomainRecordsRequest(
 			sub_domain=sub_domain
 		)
-		resp = client.describe_sub_domain_records(describe_sub_domain_records_request)
-		#ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))
+		resp = self.client.describe_sub_domain_records(describe_sub_domain_records_request)
 		return TeaCore.to_map(resp)["body"]["DomainRecords"]["Record"][0]["RecordId"]
-	
-
-
 
 if __name__ == '__main__':
-	#print (Moeip.Get_Ip("ipv4"))
-	#print (Moeip.Get_Ip("ipv6"))
-	Moeip.push_ip(Moeip.Get_RecordId('test.moe123.top'),'test','AAAA',Moeip.Get_Ip("ipv6"),600)
+	#ipv4 = Moeip.Get_Ip("ipv4"))
+	ipv6 = Moeip.Get_Ip("ipv6")
+	client = Moeip(key.access_key_id, key.access_key_secret)
+	RecordId = Moeip.Get_RecordId(client,'test.moe123.top')
+	if ipv6 != Moeip.pull_ip(client,RecordId):
+		Moeip.push_ip(client,RecordId,'test','AAAA',ipv6,600)
+	else:
+		print ("记录一致")
+	
+	#Moeip.push_ip(client,RecordId,'test','AAAA',"::0",600)
+
+	
