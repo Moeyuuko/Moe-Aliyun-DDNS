@@ -11,7 +11,7 @@ from alibabacloud_alidns20150109 import models as alidns_20150109_models
 from alibabacloud_tea_console.client import Client as ConsoleClient
 from alibabacloud_tea_util.client import Client as UtilClient
 
-import key
+import Config
 
 class Sample:
 	def __init__(self):
