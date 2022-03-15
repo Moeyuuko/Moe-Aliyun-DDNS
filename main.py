@@ -3,6 +3,9 @@
 import requests
 import traceback
 
+import logging
+import logging.handlers
+
 from typing import List
 from Tea.core import TeaCore
 
@@ -109,7 +112,7 @@ if __name__ == '__main__':
 	try:
 		main()
 	except Exception as e:
-			print(e)
-			#print(traceback.format_exc())
+		print(e)
+		#print(traceback.format_exc())
 
 	
