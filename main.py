@@ -17,6 +17,19 @@ from alibabacloud_tea_util.client import Client as UtilClient
 
 import Config
 
+#日志配置
+logging.basicConfig(level=logging.INFO,
+	format='[%(asctime)s %(filename)s] [%(levelname)s] %(message)s',
+	datefmt='%Y-%m-%d %H:%M:%S',
+	filename='Moe-DDNS.log',
+	filemode='a')
+
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter('[%(levelname)s] %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
+
 class Sample:
 	def __init__(self):
 		pass
@@ -44,6 +57,9 @@ class Sample:
 		return Alidns20150109Client(config)
 
 class Moeip:
+	def __init__ (self, access_key_id: str,access_key_secret: str):
+		self.client = Sample.create_client(access_key_id, access_key_secret)
+	
 	@staticmethod
 	def Requests_Url_Text(url):
 		r = requests.get(url)
@@ -55,9 +71,6 @@ class Moeip:
 			return Moeip.Requests_Url_Text('http://ipv6-ip.moeyuuko.com/')
 		elif Type == "ipv4":
 			return Moeip.Requests_Url_Text('http://ipv4-ip.moeyuuko.com/')
-	
-	def __init__ (self, access_key_id: str,access_key_secret: str):
-		self.client = Sample.create_client(access_key_id, access_key_secret)
 	
 	@staticmethod
 	def push_ip(self,RecordId,rr,type,value,ttl=600) -> None:
@@ -102,17 +115,15 @@ def main():
 	
 	if ipvx != Moeip.pull_ip(client,RecordId):
 		Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
-		print ("解析刷新")
+		logging.info ("解析刷新")
 	else:
-		print ("解析一致")
-	
-	#Moeip.push_ip(client,RecordId,'test','AAAA',"::0",600)
+		logging.info ("解析一致")
 
 if __name__ == '__main__':
 	try:
 		main()
 	except Exception as e:
-		print(e)
+		logging.error (e)
 		#print(traceback.format_exc())
 
 	
