@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import requests
+import traceback
 
 from typing import List
 from Tea.core import TeaCore
@@ -76,23 +77,39 @@ class Moeip:
 		return TeaCore.to_map(resp)["body"]["Value"]
 
 	@staticmethod
-	def Get_RecordId(self,sub_domain) -> None:
+	def Get_Record_Info(self,sub_domain) -> None:
 		describe_sub_domain_records_request = alidns_20150109_models.DescribeSubDomainRecordsRequest(
 			sub_domain=sub_domain
 		)
 		resp = self.client.describe_sub_domain_records(describe_sub_domain_records_request)
-		return TeaCore.to_map(resp)["body"]["DomainRecords"]["Record"][0]["RecordId"]
+		#print (str(resp))
+		return TeaCore.to_map(resp)
 
-if __name__ == '__main__':
-	#ipv4 = Moeip.Get_Ip("ipv4"))
-	ipv6 = Moeip.Get_Ip("ipv6")
+def main():
+	if (Config.iptype == "ipv4"):
+		ipvx = Moeip.Get_Ip("ipv4")
+		DRtype = 'A'	##Domain Resolution Type
+	elif (Config.iptype == "ipv6"):
+		ipvx = Moeip.Get_Ip("ipv6")
+		DRtype = 'AAAA'
+	
 	client = Moeip(Config.access_key_id, Config.access_key_secret)
-	RecordId = Moeip.Get_RecordId(client,key.domain)
-	if ipv6 != Moeip.pull_ip(client,RecordId):
-		Moeip.push_ip(client,RecordId,'test','AAAA',ipv6,600)
+	RecordId = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RecordId"]
+	RecordRR = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RR"]
+	
+	if ipvx != Moeip.pull_ip(client,RecordId):
+		Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
+		print ("解析刷新")
 	else:
-		print ("记录一致")
+		print ("解析一致")
 	
 	#Moeip.push_ip(client,RecordId,'test','AAAA',"::0",600)
+
+if __name__ == '__main__':
+	try:
+		main()
+	except Exception as e:
+			print(e)
+			#print(traceback.format_exc())
 
 	

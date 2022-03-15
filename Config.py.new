@@ -1,4 +1,6 @@
 access_key_id = ""
 access_key_secret = ""
 
+iptype = "ipv6"		#ipv6 #ipv4
+
 domain = "www.xxx.moe"
