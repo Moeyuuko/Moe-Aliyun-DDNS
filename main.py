@@ -3,8 +3,11 @@
 import requests
 import traceback
 
+import re
 import logging
 import logging.handlers
+from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 
 from typing import List
 from Tea.core import TeaCore
@@ -18,17 +21,41 @@ from alibabacloud_tea_util.client import Client as UtilClient
 import Config
 
 #日志配置
-logging.basicConfig(level=logging.INFO,
-	format='[%(asctime)s %(filename)s] [%(levelname)s] %(message)s',
-	datefmt='%Y-%m-%d %H:%M:%S',
-	filename='Moe-DDNS.log',
-	filemode='a')
+LogLevel = Config.LogLevel
+LogName = 'Moe-DDNS.log'
+LogFormat = '[%(asctime)s %(filename)s] [%(levelname)s] %(message)s'
 
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter('[%(levelname)s] %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+log_fmt = LogFormat
+datefmt= '%Y-%m-%d %H:%M:%S'
+formatter = logging.Formatter(log_fmt,datefmt)
+
+log_file_handler = TimedRotatingFileHandler(
+	filename=LogName,
+	when="D",
+	interval=1,
+	backupCount=2)
+log_file_handler.suffix = "%Y-%m-%d_%H-%M.log"
+log_file_handler.extMatch = re.compile(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}.log$")
+log_file_handler.setFormatter(formatter)
+logging.basicConfig(level=LogLevel,
+	format=LogFormat,
+	datefmt=datefmt,
+#	filename=LogName,
+	filemode='a')
+log = logging.getLogger()
+log.addHandler(log_file_handler)
+
+# logging.basicConfig(level=LogLevel,
+# 	format='[%(asctime)s %(filename)s] [%(levelname)s] %(message)s',
+# 	datefmt='%Y-%m-%d %H:%M:%S',
+# 	filename=LogName,
+# 	filemode='a')
+
+# console = logging.StreamHandler()
+# console.setLevel(LogLevel)
+# formatter = logging.Formatter('[%(levelname)s] %(message)s')
+# console.setFormatter(formatter)
+# logging.getLogger('').addHandler(console)
 
 class Sample:
 	def __init__(self):
