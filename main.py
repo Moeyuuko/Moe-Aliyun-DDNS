@@ -33,10 +33,11 @@ log_file_handler = TimedRotatingFileHandler(
 	filename=LogName,
 	when="D",
 	interval=1,
-	backupCount=2)
+	backupCount=Config.LogRetentionDays)
 log_file_handler.suffix = "%Y-%m-%d_%H-%M.log"
 log_file_handler.extMatch = re.compile(r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}.log$")
 log_file_handler.setFormatter(formatter)
+
 logging.basicConfig(level=LogLevel,
 	format=LogFormat,
 	datefmt=datefmt,
@@ -79,7 +80,7 @@ class Sample:
 			# 您的AccessKey Secret,
 			access_key_secret=access_key_secret
 		)
-		# 访问的域名
+		# 访问的域名 https://next.api.aliyun.com/product/Alidns#endpoint
 		config.endpoint = f'alidns.cn-shenzhen.aliyuncs.com'
 		return Alidns20150109Client(config)
 
@@ -109,7 +110,8 @@ class Moeip:
 			ttl=ttl
 		)
 		resp = self.client.update_domain_record(update_domain_record_request)
-		ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))
+		#ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))\
+		return resp
 	
 	@staticmethod
 	def pull_ip(self,RecordId) -> None:
@@ -139,12 +141,13 @@ def main():
 	client = Moeip(Config.access_key_id, Config.access_key_secret)
 	RecordId = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RecordId"]
 	RecordRR = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RR"]
-	
+
 	if ipvx != Moeip.pull_ip(client,RecordId):
-		Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
-		logging.info ("解析刷新")
+		re = Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
+		logging.debug (re)
+		logging.info ("解析刷新 "+ipvx)
 	else:
-		logging.info ("解析一致")
+		logging.info ("解析一致 "+ipvx)
 
 if __name__ == '__main__':
 	try:

@@ -6,3 +6,4 @@ domain = "www.xxx.moe"
 
 import logging
 LogLevel = logging.INFO
+LogRetentionDays = 3
