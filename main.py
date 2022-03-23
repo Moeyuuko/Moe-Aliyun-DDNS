@@ -62,7 +62,6 @@ class Sample:
 	def __init__(self):
 		pass
 
-	@staticmethod
 	def create_client(
 		access_key_id: str,
 		access_key_secret: str,
@@ -88,19 +87,16 @@ class Moeip:
 	def __init__ (self, access_key_id: str,access_key_secret: str):
 		self.client = Sample.create_client(access_key_id, access_key_secret)
 	
-	@staticmethod
 	def Requests_Url_Text(url):
 		r = requests.get(url)
 		return r.text
 
-	@staticmethod
 	def Get_Ip(Type = "ipv4"):
 		if Type == "ipv6":
 			return Moeip.Requests_Url_Text('http://ipv6-ip.moeyuuko.com/')
 		elif Type == "ipv4":
 			return Moeip.Requests_Url_Text('http://ipv4-ip.moeyuuko.com/')
 	
-	@staticmethod
 	def push_ip(self,RecordId,rr,type,value,ttl=600) -> None:
 		update_domain_record_request = alidns_20150109_models.UpdateDomainRecordRequest(
 			record_id=RecordId,
@@ -113,7 +109,6 @@ class Moeip:
 		#ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))\
 		return resp
 	
-	@staticmethod
 	def pull_ip(self,RecordId) -> None:
 		describe_domain_record_info_request = alidns_20150109_models.DescribeDomainRecordInfoRequest(
 			record_id=RecordId
@@ -121,7 +116,6 @@ class Moeip:
 		resp = self.client.describe_domain_record_info(describe_domain_record_info_request)
 		return TeaCore.to_map(resp)["body"]["Value"]
 
-	@staticmethod
 	def Get_Record_Info(self,sub_domain) -> None:
 		describe_sub_domain_records_request = alidns_20150109_models.DescribeSubDomainRecordsRequest(
 			sub_domain=sub_domain
