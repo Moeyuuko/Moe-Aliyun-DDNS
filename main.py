@@ -141,13 +141,14 @@ def main():
 	client = Moeip(Config.access_key_id, Config.access_key_secret)
 	RecordId = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RecordId"]
 	RecordRR = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RR"]
+	ipvx_pull = Moeip.pull_ip(client,RecordId)
 
-	if ipvx != Moeip.pull_ip(client,RecordId):
+	if ipvx != ipvx_pull:
 		re = Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
 		logging.debug (re)
 		logging.info ("解析刷新 "+ipvx)
 	else:
-		logging.info ("解析一致 "+ipvx)
+		logging.info ("解析一致 "+ipvx_pull)
 
 if __name__ == '__main__':
 	try:
