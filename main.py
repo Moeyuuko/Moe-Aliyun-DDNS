@@ -93,10 +93,15 @@ class Moeip:
 		return r.text
 
 	def Get_Ip(Type = "ipv4"):
+		logging.debug ("==本机ip==")
 		if Type == "ipv6":
-			return Moeip.Requests_Url_Text('http://ipv6-ip.moeyuuko.com/')
+			reip = Moeip.Requests_Url_Text('http://ipv6-ip.moeyuuko.com/')
+			logging.debug (reip)
+			return reip
 		elif Type == "ipv4":
-			return Moeip.Requests_Url_Text('http://ipv4-ip.moeyuuko.com/')
+			reip = Moeip.Requests_Url_Text('http://ipv4-ip.moeyuuko.com/')
+			logging.debug (reip)
+			return reip
 	
 	def push_ip(self,RecordId,rr,type,value,ttl=600) -> None:
 		update_domain_record_request = alidns_20150109_models.UpdateDomainRecordRequest(
@@ -108,21 +113,31 @@ class Moeip:
 		)
 		resp = self.client.update_domain_record(update_domain_record_request)
 		#ConsoleClient.log(UtilClient.to_jsonstring(TeaCore.to_map(resp)))\
+		logging.debug (resp)
 		return resp
 	
-	def pull_ip(self,RecordId) -> None:
-		describe_domain_record_info_request = alidns_20150109_models.DescribeDomainRecordInfoRequest(
-			record_id=RecordId
-		)
-		resp = self.client.describe_domain_record_info(describe_domain_record_info_request)
-		return TeaCore.to_map(resp)["body"]["Value"]
+	def pull_ip(client,domain,Type) -> None:
+		logging.debug ("==拉取==")
+		Record_Info_DATA = Moeip.Get_Record_Info(client,domain)
+		Record_Info_DATA_body = Record_Info_DATA["body"]["DomainRecords"]["Record"]
+		logging.debug (Record_Info_DATA_body)
+		for record in Record_Info_DATA_body:
+			if record['Type'] == Type:
+				reip = record['Value']
+				reid = record['RecordId']
+				rerr = record['RR']
+		logging.debug ("==远程记录==")
+		logging.debug (reip)
+		logging.debug (reid)
+		logging.debug (rerr)
+		return reip,reid,rerr
 
 	def Get_Record_Info(self,sub_domain) -> None:
 		describe_sub_domain_records_request = alidns_20150109_models.DescribeSubDomainRecordsRequest(
 			sub_domain=sub_domain
 		)
 		resp = self.client.describe_sub_domain_records(describe_sub_domain_records_request)
-		#print (str(resp))
+		logging.debug (resp)
 		return TeaCore.to_map(resp)
 
 def main():
@@ -134,9 +149,7 @@ def main():
 		DRtype = 'AAAA'
 	
 	client = Moeip(Config.access_key_id, Config.access_key_secret)
-	RecordId = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RecordId"]
-	RecordRR = Moeip.Get_Record_Info(client,Config.domain)["body"]["DomainRecords"]["Record"][0]["RR"]
-	ipvx_pull = Moeip.pull_ip(client,RecordId)
+	ipvx_pull,RecordId,RecordRR = Moeip.pull_ip(client,Config.domain,DRtype)
 
 	if ipvx != ipvx_pull:
 		re = Moeip.push_ip(client,RecordId,RecordRR,DRtype,ipvx,600)
