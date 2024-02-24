@@ -142,12 +142,21 @@ class Moeip:
 
 def main():
 	if (Config.iptype == "ipv4"):
+		execute("ipv4")
+	elif (Config.iptype == "ipv6"):
+		execute("ipv6")
+	elif (Config.iptype == "ipv4&6"):
+		execute("ipv4")
+		execute("ipv6")
+
+def execute(iptype):
+	if (iptype == "ipv4"):
 		ipvx = Moeip.Get_Ip("ipv4")
 		DRtype = 'A'	##Domain Resolution Type
-	elif (Config.iptype == "ipv6"):
+	elif (iptype == "ipv6"):
 		ipvx = Moeip.Get_Ip("ipv6")
 		DRtype = 'AAAA'
-	
+
 	client = Moeip(Config.access_key_id, Config.access_key_secret)
 	ipvx_pull,RecordId,RecordRR = Moeip.pull_ip(client,Config.domain,DRtype)
 

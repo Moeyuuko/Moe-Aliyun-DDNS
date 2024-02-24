@@ -1,7 +1,7 @@
 access_key_id = ""
 access_key_secret = ""
 
-iptype = "ipv6"		#ipv6 #ipv4
+iptype = "ipv6"		#ipv4 #ipv6 #ipv4&6
 domain = "www.xxx.moe"
 
 import logging
