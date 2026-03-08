@@ -36,14 +36,19 @@ log.addHandler(log_file_handler)
 
 
 class Moeip:
-	def __init__(self, access_key_id: str, access_key_secret: str):
+	@staticmethod
+	def create_client(access_key_id: str, access_key_secret: str) -> Alidns20150109Client:
+		"""使用 AK&SK 初始化阿里云 DNS 客户端"""
 		config = open_api_models.Config(
 			access_key_id=access_key_id,
 			access_key_secret=access_key_secret
 		)
 		# 访问的域名 https://next.api.aliyun.com/product/Alidns#endpoint
 		config.endpoint = 'alidns.cn-shenzhen.aliyuncs.com'
-		self.client = Alidns20150109Client(config)
+		return Alidns20150109Client(config)
+
+	def __init__(self, access_key_id: str, access_key_secret: str):
+		self.client = Moeip.create_client(access_key_id, access_key_secret)
 
 	@staticmethod
 	def get_ip(ip_type="ipv4") -> str:
